@@ -571,6 +571,8 @@ body {
 .profile-section {
     text-align: center;
     z-index: 10;
+    animation: fadeIn 0.8s ease-out forwards;
+    opacity: 0;
 }
 
 .profile-img-container {
@@ -821,6 +823,8 @@ body {
     padding: 40px;
     z-index: 10;
     overflow-y: auto;
+    animation: fadeIn 0.8s ease-out forwards;
+    opacity: 0;
     /* Allow scrolling if content is too tall */
 }
 
@@ -1012,6 +1016,11 @@ body {
     display: flex;
     justify-content: center;
     /* Center the container */
+}
+
+.experience-section {
+    animation: fadeIn 0.8s ease-out forwards;
+    opacity: 0;
 }
 
 .experience-container,
