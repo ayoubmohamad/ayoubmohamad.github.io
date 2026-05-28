@@ -8,18 +8,7 @@
     --accent-pink: #ff5e6c;
     --accent-yellow: #feca57;
     --accent-purple: #5f27cd;
-    --accent-teal: #48dbfb;
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-
-    :root {
-        --bg-color: #2b2d42;
-        --sidebar-bg: #23253a;
-        --text-color: #ffffff;
-        --text-muted: #8d99ae;
-        --accent-pink: #ff5e6c;
-        --accent-yellow: #feca57;
-        --accent-purple: #5f27cd;
-        --accent-teal: #48dbfb;
+    /* variables declared once */
     }
 
     * {
@@ -32,12 +21,12 @@
     body {
         background-color: var(--bg-color);
         color: var(--text-color);
-        overflow: hidden;
+        overflow-x: hidden; /* allow vertical scroll on mobile */
     }
 
     .container {
         display: flex;
-        height: 100vh;
+        min-height: 100vh; /* avoid clipping on mobile chrome UI */
     }
 
     /* ================= Sidebar ================= */
@@ -488,12 +477,10 @@
 body {
     background-color: var(--bg-color);
     color: var(--text-color);
-    overflow: hidden;
 }
-
 .container {
     display: flex;
-    height: 100vh;
+    min-height: 100vh;
 }
 
 /* ================= Sidebar ================= */
