@@ -455,6 +455,9 @@
             flex-direction: row;
             align-items: center;
             position: relative;
+            z-index: 10000;
+            transform: translate3d(0, 0, 0);
+            -webkit-transform: translate3d(0, 0, 0);
         }
 
         /* hide nav by default on mobile; show via .open */
@@ -476,14 +479,16 @@
             border-bottom-left-radius: 8px;
             border-bottom-right-radius: 8px;
             box-shadow: 0 8px 20px rgba(0,0,0,0.25);
-            z-index: 9999;
+            z-index: 99999;
+            transform: translate3d(0, 0, 0);
+            -webkit-transform: translate3d(0, 0, 0);
         }
 
-        .menu-toggle { display: block; margin-left: auto; }
-
-        /* ensure sidebar & toggle sit above main content */
-        .sidebar { z-index: 1000; }
-        .menu-toggle { z-index: 1001; }
+        .menu-toggle {
+            display: block;
+            margin-left: auto;
+            z-index: 10001;
+        }
 
         .nav-menu li {
             margin: 0 10px;
