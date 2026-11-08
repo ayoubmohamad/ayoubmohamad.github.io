@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<title>Homelab Network - portfolio edition</title>
+<style>
+:root{
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Segoe UI Variable Display","Segoe UI",system-ui,sans-serif;
+  --mono:ui-monospace,"SF Mono","Cascadia Mono",Consolas,monospace;
+  --ease:cubic-bezier(.22,.8,.24,1);
+  --r-lg:24px; --r-md:16px; --r-sm:11px; --maxw:1120px;
+}
+[data-theme="dark"]{
+  --bg:#000; --bg2:#0b0b0d; --surface:#131315; --raised:#1c1c1f; --line:rgba(255,255,255,.09); --line2:rgba(255,255,255,.18);
+  --text:#f5f5f7; --muted:#a1a1a6; --accent:#2997ff; --accent-ink:#04101c;
+  --ok:#30d158; --warn:#ff9f0a; --bad:#ff453a;
+  --v10:#40c8e0; --v20:#0a84ff; --v30:#ff9f0a; --v40:#bf5af2; --v50:#ff375f; --v99:#ffd60a; --v1:#8e8e93; --rec:#ff6961;
+  --glass:rgba(24,24,27,.74); --shadow:0 24px 70px rgba(0,0,0,.6); --glow:rgba(41,151,255,.20);
+}
+[data-theme="light"]{
+  --bg:#f5f5f7; --bg2:#ffffff; --surface:#ffffff; --raised:#f2f2f4; --line:rgba(0,0,0,.09); --line2:rgba(0,0,0,.18);
+  --text:#1d1d1f; --muted:#5f5f64; --accent:#0066cc; --accent-ink:#ffffff;
+  --ok:#1b7f37; --warn:#a15c00; --bad:#c9302c;
+  --v10:#0e8aa3; --v20:#0060d0; --v30:#c25e00; --v40:#8e3ec9; --v50:#d11f4a; --v99:#8a6d00; --v1:#6e6e73; --rec:#c9302c;
+  --glass:rgba(255,255,255,.76); --shadow:0 24px 60px rgba(0,0,0,.14); --glow:rgba(0,102,204,.14);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:96px;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--text);font:17px/1.6 var(--font);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+h1,h2,h3,h4,p{margin:0}
+a{color:var(--accent);text-decoration:none}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;padding:0}
+code,.mono{font-family:var(--mono);font-size:.9em;font-variant-numeric:tabular-nums}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:8px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.wrap{width:min(var(--maxw),calc(100% - 48px));margin-inline:auto}
+.ico{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+/* navigation */
+.nav{position:fixed;z-index:50;top:12px;left:50%;transform:translateX(-50%);width:min(var(--maxw),calc(100% - 24px));height:56px;display:flex;align-items:center;gap:10px;padding:0 10px 0 20px;background:var(--glass);backdrop-filter:saturate(180%) blur(22px);-webkit-backdrop-filter:saturate(180%) blur(22px);border:1px solid var(--line);border-radius:999px;box-shadow:0 8px 30px rgba(0,0,0,.18)}
+.brand{font-weight:650;letter-spacing:-.02em;font-size:17px;white-space:nowrap;margin-right:6px}
+.nav-links{display:flex;gap:2px;flex:1;overflow-x:auto;scrollbar-width:none}
+.nav-links::-webkit-scrollbar{display:none}
+.nav-links a{color:var(--muted);font-size:14px;font-weight:500;padding:8px 14px;border-radius:999px;white-space:nowrap;transition:color .2s var(--ease),background .2s var(--ease)}
+.nav-links a:hover{color:var(--text)}
+.nav-links a[aria-current="true"]{color:var(--text);background:var(--raised)}
+.nav-btn{display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 14px;border-radius:999px;color:var(--muted);font-size:14px;background:var(--raised);border:1px solid var(--line);transition:color .2s var(--ease),border-color .2s var(--ease)}
+.nav-btn:hover{color:var(--text);border-color:var(--line2)}
+.nav-btn kbd{font:12px var(--mono);color:var(--muted);border:1px solid var(--line2);border-radius:6px;padding:1px 6px}
+.nav-btn.round{width:38px;padding:0;justify-content:center}
+#themeBtn .sun{display:none}
+[data-theme="light"] #themeBtn .sun{display:block}
+[data-theme="light"] #themeBtn .moon{display:none}
+
+/* hero */
+.hero{position:relative;padding:168px 0 40px;text-align:center;overflow:hidden}
+.hero:before{content:"";position:absolute;inset:0;background:radial-gradient(60% 55% at 50% 0%,var(--glow),transparent 72%);pointer-events:none}
+.hero h1{position:relative;font-size:clamp(48px,9.5vw,104px);line-height:1;letter-spacing:-.05em;font-weight:700}
+.hero .sub{position:relative;margin:22px auto 0;max-width:34ch;font-size:clamp(19px,2.4vw,24px);line-height:1.4;color:var(--muted);letter-spacing:-.01em}
+.status{position:relative;margin:56px auto 0;display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;text-align:left;max-width:920px}
+.status > div{background:var(--surface);padding:22px 24px}
+.status b{display:block;font-size:15px;font-weight:600;letter-spacing:-.01em}
+.status span{display:flex;align-items:center;gap:8px;margin-top:6px;font-size:14px;color:var(--muted)}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--faint,#8e8e93);flex:none}
+.dot[data-s="ok"]{background:var(--ok);box-shadow:0 0 0 4px color-mix(in srgb,var(--ok) 22%,transparent)}
+.dot[data-s="warn"]{background:var(--warn);box-shadow:0 0 0 4px color-mix(in srgb,var(--warn) 22%,transparent)}
+.hero .stamp{position:relative;margin-top:22px;font-size:14px;color:var(--muted)}
+@keyframes rise{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+.hero h1,.hero .sub,.hero .status,.hero .stamp{animation:rise .9s var(--ease) both}
+.hero .sub{animation-delay:.08s}.hero .status{animation-delay:.18s}.hero .stamp{animation-delay:.28s}
+
+/* sections */
+.sec{padding-top:120px}
+.sec h2{font-size:clamp(34px,5.2vw,56px);line-height:1.04;letter-spacing:-.04em;font-weight:700;max-width:24ch;text-wrap:balance}
+.sec .lead{margin-top:16px;max-width:60ch;font-size:clamp(18px,2vw,21px);line-height:1.5;color:var(--muted);letter-spacing:-.005em}
+.sec .body{margin-top:48px}
+.sec h3{font-size:24px;letter-spacing:-.02em;font-weight:650}
+.sec .h3row{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin:56px 0 20px}
+.sec .h3row:first-child{margin-top:0}
+
+/* surfaces */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:28px}
+.card.hover{transition:transform .25s var(--ease),border-color .25s var(--ease),box-shadow .25s var(--ease)}
+.card.hover:hover{transform:translateY(-3px);border-color:var(--line2);box-shadow:var(--shadow)}
+.grid{display:grid;gap:16px}
+.pill{display:inline-flex;align-items:center;gap:7px;padding:4px 11px;border-radius:999px;font-size:13px;font-weight:600;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.pill:before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.pill[data-s="ok"]{color:var(--ok);border-color:color-mix(in srgb,var(--ok) 38%,transparent);background:color-mix(in srgb,var(--ok) 10%,transparent)}
+.pill[data-s="warn"]{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 38%,transparent);background:color-mix(in srgb,var(--warn) 10%,transparent)}
+.pill[data-s="bad"]{color:var(--bad);border-color:color-mix(in srgb,var(--bad) 38%,transparent);background:color-mix(in srgb,var(--bad) 10%,transparent)}
+.pill.plain:before{display:none}
+.chip{display:inline-flex;align-items:center;gap:8px;font:14px var(--mono);padding:5px 11px;border-radius:10px;background:var(--raised);border:1px solid var(--line);color:var(--text);transition:border-color .2s var(--ease),background .2s var(--ease);font-variant-numeric:tabular-nums}
+button.chip:hover{border-color:var(--accent)}
+.chip .ico{width:14px;height:14px;color:var(--muted)}
+.vl{--c:var(--v1);display:inline-flex;align-items:center;gap:8px;font-weight:600;white-space:nowrap}
+.vl:before{content:"";width:10px;height:10px;border-radius:4px;background:var(--c)}
+.c10{--c:var(--v10)}.c20{--c:var(--v20)}.c30{--c:var(--v30)}.c40{--c:var(--v40)}.c50{--c:var(--v50)}.c99{--c:var(--v99)}.c1{--c:var(--v1)}.crec{--c:var(--rec)}
+.muted{color:var(--muted)}
+
+/* segmented control */
+.seg{position:relative;display:inline-flex;background:var(--raised);border:1px solid var(--line);border-radius:999px;padding:4px}
+.seg button{position:relative;z-index:1;padding:7px 18px;border-radius:999px;font-size:14px;font-weight:600;color:var(--muted);transition:color .2s var(--ease)}
+.seg button[aria-selected="true"]{color:var(--text)}
+.seg .ind{position:absolute;z-index:0;top:4px;bottom:4px;left:0;width:0;border-radius:999px;background:var(--surface);box-shadow:0 1px 3px rgba(0,0,0,.25),0 0 0 1px var(--line2)}
+.seg.ready .ind{transition:transform .3s var(--ease),width .3s var(--ease)}
+
+/* tables */
+.tbl{width:100%;border-collapse:separate;border-spacing:0;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);overflow:hidden;font-size:15px}
+.tbl th{text-align:left;font-size:13px;font-weight:600;color:var(--muted);padding:14px 18px;background:var(--raised);border-bottom:1px solid var(--line);white-space:nowrap}
+.tbl td{padding:14px 18px;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.5}
+.tbl tr:last-child td{border-bottom:0}
+.tbl tbody tr{transition:background .15s var(--ease)}
+.tbl tbody tr:hover{background:var(--raised)}
+.tw{overflow-x:auto;border-radius:var(--r-md)}
+.tw .tbl{min-width:640px}
+.kv{display:grid;grid-template-columns:minmax(110px,max-content) 1fr;gap:10px 22px;font-size:15px;align-items:baseline}
+.kv dt{color:var(--muted)}.kv dd{margin:0}
+.note{display:flex;gap:14px;align-items:flex-start;padding:18px 22px;border:1px solid var(--line);border-radius:var(--r-md);background:var(--surface);color:var(--muted);font-size:15px}
+.note .ico{color:var(--accent);margin-top:2px}
+</style>
+<style>
+/* overview bento */
+.bento{display:grid;grid-template-columns:repeat(6,1fr);gap:16px}
+.bento .a{grid-column:span 2}.bento .b{grid-column:span 3}.bento .c{grid-column:span 4}.bento .d{grid-column:span 6}
+.stat b{display:block;font-size:clamp(46px,6vw,76px);line-height:1;letter-spacing:-.05em;font-weight:700}
+.stat > span{display:block;margin-top:12px;color:var(--muted);font-size:16px}
+.bento h3{margin-bottom:14px}
+.bento ul{margin:0;padding-left:20px;color:var(--muted);font-size:16px;line-height:1.55}
+.bento li+li{margin-top:8px}
+
+/* network map */
+.mapbox{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:16px;align-items:start}
+.map{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:12px}
+.map svg{display:block;width:100%;height:auto}
+.node{cursor:pointer;outline:none}
+.node rect{fill:var(--raised);stroke:var(--line2);stroke-width:1.5;transition:stroke .2s var(--ease),stroke-width .2s var(--ease),fill .2s var(--ease)}
+.node.live rect{stroke:color-mix(in srgb,var(--ok) 70%,transparent)}
+.node.plan rect{stroke-dasharray:6 5}
+.node:hover rect,.node:focus-visible rect,.node.sel rect{stroke:var(--accent);stroke-width:2.4;fill:color-mix(in srgb,var(--accent) 10%,var(--raised))}
+.node text{fill:var(--text);font:600 17px var(--font);pointer-events:none}
+.node text.s{fill:var(--muted);font:500 13px var(--font)}
+.lk{fill:none;stroke-width:2.5;stroke-linecap:round;transition:stroke .2s var(--ease),stroke-width .2s var(--ease)}
+.lk.live{stroke:var(--ok)}
+.lk.plan{stroke:var(--line2);stroke-dasharray:6 7}
+.lk.on{stroke:var(--accent);stroke-width:4}
+.lbl{fill:var(--muted);font:600 13px var(--font)}
+.mapinfo{position:sticky;top:92px;min-height:240px}
+.mapinfo h3{font-size:22px;margin-bottom:4px}
+.mapinfo .sub{color:var(--muted);font-size:15px;margin-bottom:16px}
+.mapinfo .kv{grid-template-columns:96px 1fr;font-size:14.5px}
+.mapinfo.swap > *{animation:fadeup .28s var(--ease) both}
+.legend{display:flex;gap:18px;flex-wrap:wrap;margin-top:14px;color:var(--muted);font-size:14px}
+.legend i{display:inline-block;width:26px;height:0;border-top:3px solid var(--ok);vertical-align:middle;margin-right:8px}
+.legend i.p{border-top:3px dashed var(--line2)}
+@keyframes fadeup{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* devices */
+.devs{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:16px}
+.dev{display:flex;flex-direction:column;gap:14px;padding:24px}
+.dev[hidden]{display:none}
+.dev .top{display:flex;gap:14px;align-items:center}
+.dev .bub{width:46px;height:46px;border-radius:14px;background:var(--raised);border:1px solid var(--line);display:grid;place-items:center;color:var(--accent);flex:none}
+.dev h3{font-size:19px;letter-spacing:-.015em}
+.dev .model{color:var(--muted);font-size:14.5px}
+.dev .role{color:var(--muted);font-size:15px;line-height:1.5;flex:1}
+.dev .foot{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:space-between}
+
+/* networks */
+.vlans{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:16px}
+.vcard{padding:26px;box-shadow:inset 0 3px 0 var(--c,var(--v1))}
+.vcard .id{font-size:44px;line-height:1;font-weight:700;letter-spacing:-.045em;color:var(--c,var(--v1))}
+.vcard h3{margin-top:10px;font-size:20px}
+.vcard .who{color:var(--muted);font-size:15px;margin-top:4px}
+.vcard dl{margin:18px 0 0}
+
+/* ports */
+.plate{display:flex;gap:26px;align-items:center;flex-wrap:wrap;padding:26px;background:linear-gradient(180deg,var(--raised),var(--surface));border:1px solid var(--line);border-radius:var(--r-lg)}
+.pgrid{display:grid;grid-template-columns:repeat(4,76px);gap:10px}
+.prow{display:flex;gap:10px;flex-wrap:wrap}
+.pdiv{width:1px;align-self:stretch;background:var(--line2)}
+.port{position:relative;width:76px;height:76px;border-radius:14px;background:var(--bg2);border:1px solid var(--line2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;transition:transform .2s var(--ease),border-color .2s var(--ease),box-shadow .2s var(--ease)}
+.port:before{content:"";position:absolute;top:9px;right:9px;width:7px;height:7px;border-radius:50%;background:var(--line2)}
+.port[data-link="up"]:before{background:var(--ok);box-shadow:0 0 0 3px color-mix(in srgb,var(--ok) 25%,transparent)}
+.port:after{content:"";position:absolute;left:15px;right:15px;bottom:9px;height:3px;border-radius:3px;background:var(--c,var(--v1))}
+.port:hover{transform:translateY(-2px);border-color:var(--c,var(--v1))}
+.port[aria-pressed="true"]{border-color:var(--c,var(--v1));box-shadow:0 0 0 3px color-mix(in srgb,var(--c,var(--v1)) 30%,transparent)}
+.port .n{font-weight:700;font-size:18px;line-height:1.1}
+.port .v{font-size:11.5px;color:var(--muted);font-weight:600;line-height:1.1}
+.pdetail{margin-top:16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.pdetail .f{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:18px 20px}
+.pdetail .f small{display:block;font-size:13px;font-weight:600;color:var(--muted);margin-bottom:6px}
+.pdetail .f.wide{grid-column:1/-1}
+.pdetail.swap .f{animation:fadeup .28s var(--ease) both}
+.pane[hidden]{display:none}
+
+/* access */
+.mx td,.mx th{text-align:center;font-size:14.5px}
+.mx td:first-child,.mx th:first-child{text-align:left}
+.mx td{font-weight:600;transition:background .15s var(--ease)}
+.mx td small{display:block;font-weight:500;color:var(--muted);font-size:12.5px}
+.mx .y{color:var(--ok)}.mx .n{color:var(--bad)}.mx .l{color:var(--warn)}.mx .s{color:var(--muted)}
+.mx td.hl,.mx th.hl{background:var(--raised)}
+
+/* firewall */
+.rules{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);overflow:hidden}
+.rule{display:grid;grid-template-columns:40px 96px 1fr;gap:14px;align-items:center;padding:14px 20px;border-bottom:1px solid var(--line);font-size:15.5px;transition:background .15s var(--ease)}
+.rule:last-child{border-bottom:0}
+.rule:hover{background:var(--raised)}
+.rule[hidden]{display:none}
+.rule .no{color:var(--muted);font:14px var(--mono)}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.fchip{padding:7px 16px;border-radius:999px;font-size:14px;font-weight:600;color:var(--muted);border:1px solid var(--line);background:var(--surface);transition:all .2s var(--ease)}
+.fchip:hover{color:var(--text);border-color:var(--line2)}
+.fchip[aria-pressed="true"]{color:var(--accent-ink);background:var(--accent);border-color:var(--accent)}
+
+/* operations */
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px}
+.steps{list-style:none;counter-reset:s;margin:0;padding:0;display:grid;gap:14px}
+.steps li{counter-increment:s;display:flex;gap:14px;align-items:flex-start;font-size:16px;line-height:1.5}
+.steps li:before{content:counter(s);flex:none;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:14px;font-weight:700;background:var(--raised);border:1px solid var(--line2)}
+.tl{display:grid}
+.tl .i{display:grid;grid-template-columns:30px 1fr;gap:18px;padding-bottom:30px;position:relative}
+.tl .i:last-child{padding-bottom:0}
+.tl .i:before{content:"";position:absolute;left:14px;top:30px;bottom:0;width:2px;background:var(--line2)}
+.tl .i:last-child:before{display:none}
+.tl .mk{width:30px;height:30px;border-radius:50%;border:2px solid var(--line2);background:var(--bg);display:grid;place-items:center}
+.tl .i[data-s="next"] .mk{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 18%,var(--bg))}
+.tl .i[data-s="next"] .mk:after{content:"";width:10px;height:10px;border-radius:50%;background:var(--accent)}
+.tl h4{font-size:18px;font-weight:650;letter-spacing:-.01em}
+.tl p{color:var(--muted);font-size:15.5px;margin-top:4px;max-width:62ch}
+.refgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.refgrid .kv{grid-template-columns:96px 1fr}
+
+footer{margin-top:140px;padding:40px 0 56px;border-top:1px solid var(--line);color:var(--muted);font-size:14.5px}
+
+/* command palette */
+.ov{position:fixed;inset:0;z-index:100;display:none;align-items:flex-start;justify-content:center;padding-top:13vh;background:rgba(0,0,0,.5);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.ov.open{display:flex;animation:fade .18s ease-out}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.pal{width:min(660px,calc(100% - 28px));background:var(--surface);border:1px solid var(--line2);border-radius:20px;box-shadow:var(--shadow);overflow:hidden;animation:pop .22s var(--ease)}
+@keyframes pop{from{opacity:0;transform:translateY(-10px) scale(.985)}to{opacity:1;transform:none}}
+.pal .q{display:flex;gap:12px;align-items:center;padding:16px 20px;border-bottom:1px solid var(--line);color:var(--muted)}
+.pal input{flex:1;background:none;border:0;outline:0;color:var(--text);font:18px var(--font);min-width:0}
+.pal .res{max-height:min(52vh,420px);overflow:auto;padding:8px}
+.pal .it{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:11px 14px;border-radius:12px;cursor:pointer;font-size:16px}
+.pal .it small{color:var(--muted);font-size:13px}
+.pal .it[aria-selected="true"]{background:var(--raised)}
+.pal .none{padding:26px;text-align:center;color:var(--muted)}
+.pal .hint{padding:10px 20px;border-top:1px solid var(--line);color:var(--muted);font-size:13px}
+.toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,24px);opacity:0;pointer-events:none;z-index:120;background:var(--text);color:var(--bg);padding:10px 18px;border-radius:999px;font-size:14.5px;font-weight:600;transition:all .28s var(--ease)}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.flash{animation:flash 1.5s ease-out}
+@keyframes flash{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 70%,transparent)}40%{box-shadow:0 0 0 8px color-mix(in srgb,var(--accent) 35%,transparent)}100%{box-shadow:0 0 0 0 transparent}}
+
+@media (max-width:900px){
+  .status{grid-template-columns:repeat(2,1fr)}
+  .bento .a,.bento .b,.bento .c{grid-column:span 6}
+  .mapbox{grid-template-columns:minmax(0,1fr)}.mapinfo{position:static}
+  .nav-btn kbd,.nav-btn .t{display:none}
+  .nav-btn:not(.round){width:38px;padding:0;justify-content:center}
+  .pgrid{grid-template-columns:repeat(4,64px)}.port{width:64px;height:64px}.port .v{font-size:10.5px}
+  .rule{grid-template-columns:34px 1fr}.rule .pill{grid-column:2;justify-self:start}.rule > :last-child{grid-column:1/-1}
+}
+@media (max-width:700px){.map{overflow-x:auto}.map svg{min-width:760px}}
+@media (max-width:520px){.wrap{width:calc(100% - 32px)}.hero{padding-top:132px}.sec{padding-top:88px}.brand{display:none}.status > div{padding:16px}}
+@media (prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+@media print{.nav,.ov,.toast{display:none!important}body{background:#fff;color:#000}.card,.tbl{box-shadow:none}}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-router" viewBox="0 0 24 24"><rect x="3" y="12" width="18" height="8" rx="2"/><path d="M7 12V8M12 12V5M17 12V8M7 16h.01M11 16h.01"/></symbol>
+    <symbol id="i-switch" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="10" rx="2"/><path d="M6 12h.01M10 12h.01M14 12h.01M18 12h.01"/></symbol>
+    <symbol id="i-monitor" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></symbol>
+    <symbol id="i-server" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="6" rx="2"/><rect x="3" y="14" width="18" height="6" rx="2"/><path d="M7 7h.01M7 17h.01"/></symbol>
+    <symbol id="i-wifi" viewBox="0 0 24 24"><path d="M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0"/><circle cx="12" cy="19" r="1"/></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></symbol>
+    <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 18a4 4 0 0 1-.5-7.97A5.5 5.5 0 0 1 17 8.5a4.5 4.5 0 0 1 0 9.5H7z"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6l8-3z"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></symbol>
+  </defs>
+</svg>
+
+<header class="nav" role="banner">
+  <span class="brand">Homelab</span>
+  <nav class="nav-links" id="navLinks" aria-label="Sections">
+    <a href="#overview">Overview</a>
+    <a href="#map">Map</a>
+    <a href="#devices">Devices</a>
+    <a href="#networks">Networks</a>
+    <a href="#ports">Ports</a>
+    <a href="#access">Access</a>
+    <a href="#operations">Operations</a>
+    <a href="#roadmap">Roadmap</a>
+  </nav>
+  <button class="nav-btn" id="palBtn" type="button" aria-label="Search"><svg class="ico" style="width:18px;height:18px"><use href="#i-search"/></svg><span class="t">Search</span><kbd>Ctrl K</kbd></button>
+  <button class="nav-btn round" id="themeBtn" type="button" aria-label="Switch between light and dark"><svg class="ico sun" style="width:18px;height:18px"><use href="#i-sun"/></svg><svg class="ico moon" style="width:18px;height:18px"><use href="#i-moon"/></svg></button>
+</header>
+
+<main>
+<section class="hero">
+  <div class="wrap">
+    <h1>Homelab<br>Network</h1>
+    <p class="sub">A segmented home network built on MikroTik and UniFi, documented the way I would document it at work.</p>
+    <div class="status" role="list">
+      <div role="listitem"><b>Router</b><span><i class="dot" data-s="ok"></i>Online</span></div>
+      <div role="listitem"><b>Switch</b><span><i class="dot" data-s="ok"></i>Online</span></div>
+      <div role="listitem"><b>UniFi</b><span><i class="dot" data-s="ok"></i>2 devices online</span></div>
+      <div role="listitem"><b>Internet</b><span><i class="dot" data-s="warn"></i>Not connected yet</span></div>
+    </div>
+    <p class="stamp">Portfolio edition, November 2026. IP addresses are examples and some details are left out on purpose.</p>
+  </div>
+</section>
+
+<section class="sec" id="overview">
+  <div class="wrap">
+    <h2>One network, six lanes.</h2>
+    <p class="lead">A MikroTik router and switch split the lab into isolated networks, with a locked-down path for managing everything.</p>
+    <div class="body bento">
+      <div class="card stat a"><b data-count="6">6</b><span>separate networks (VLANs)</span></div>
+      <div class="card stat a"><b>10G</b><span>trunk between the router and the switch</span></div>
+      <div class="card stat a"><b><span data-count="6">6</span> of 9</b><span>devices connected today</span></div>
+      <div class="card c">
+        <h3>How it works</h3>
+        <ul>
+          <li>The router is the gateway for every network. It runs DHCP, DNS, the firewall and internet sharing.</li>
+          <li>The switch connects wired devices. Each port belongs to one network, and one 10G link carries all of them to the router.</li>
+          <li>Networks reach each other only through the rules in Access.</li>
+          <li>Management is limited to two networks.</li>
+        </ul>
+      </div>
+      <div class="card a">
+        <h3>Right now</h3>
+        <dl class="kv" style="grid-template-columns:86px 1fr">
+          <dt>Internet</dt><dd>Waiting for the AT&amp;T cable on router <code>ether1</code></dd>
+          <dt>DNS</dt><dd>Quad9</dd>
+          <dt>Time</dt><dd>Eastern, syncs once online</dd>
+          <dt>Monitoring</dt><dd>A read-only status page for the router and switch</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="map">
+  <div class="wrap">
+    <h2>The whole lab, one map.</h2>
+    <p class="lead">Select any device to see its address, its port and what it does. Solid lines are connected today; dashed lines are planned.</p>
+    <div class="body mapbox">
+      <div>
+        <div class="map">
+          <svg viewBox="0 0 1000 440" role="group" aria-label="Network map">
+            <path class="lk plan" id="l-inet-bgw" d="M112 232 H142"/>
+            <path class="lk plan" id="l-bgw-router" d="M270 232 H312"/>
+            <path class="lk live" id="l-router-switch" d="M482 232 H560"/>
+            <path class="lk live" id="l-switch-pc" d="M730 196 C760 196 760 46 790 46"/>
+            <path class="lk live" id="l-switch-nuc" d="M730 216 C760 216 760 130 790 130"/>
+            <path class="lk" id="l-switch-mini" d="M730 244 C760 244 760 214 790 214"/>
+            <path class="lk live" id="l-switch-flex" d="M730 268 C760 268 760 298 790 298"/>
+            <path class="lk live" id="l-flex-ck" d="M890 330 V358"/>
+            <path class="lk plan" id="l-flex-u7" d="M790 318 C762 318 762 390 740 390"/>
+
+            <g class="node plan" tabindex="0" role="button" aria-label="Internet" data-title="Internet" data-sub="AT&amp;T fiber" data-status="Not connected" data-s="warn" data-port="Router ether1, through the BGW320" data-note="The router shares one internet connection with every network once the cable is in." data-links="l-inet-bgw"><rect x="8" y="200" width="104" height="64" rx="16"/><text x="60" y="228" text-anchor="middle">Internet</text><text class="s" x="60" y="249" text-anchor="middle">AT&amp;T fiber</text></g>
+            <g class="node plan" tabindex="0" role="button" aria-label="AT&amp;T BGW320" data-title="AT&amp;T BGW320" data-sub="Fiber gateway" data-status="Not connected" data-s="warn" data-port="Router ether1" data-note="Stays in its normal mode until the access point is installed." data-links="l-inet-bgw l-bgw-router"><rect x="142" y="192" width="128" height="80" rx="16"/><text x="206" y="228" text-anchor="middle">BGW320</text><text class="s" x="206" y="250" text-anchor="middle">to router ether1</text></g>
+            <g class="node live" tabindex="0" role="button" aria-label="Router" data-title="RB5009-ROUTER" data-sub="MikroTik RB5009UG+S+IN" data-status="Online" data-s="ok" data-addr="10.10.99.1" data-port="Trunk to the switch" data-note="Gateway, DHCP, DNS, firewall, NAT and time server." data-links="l-bgw-router l-router-switch"><rect x="312" y="166" width="170" height="132" rx="16"/><text x="397" y="218" text-anchor="middle">RB5009-ROUTER</text><text class="s" x="397" y="244" text-anchor="middle">10.10.99.1</text></g>
+            <g class="node live" tabindex="0" role="button" aria-label="Switch" data-title="CRS310-SWITCH" data-sub="MikroTik CRS310-8G+2S+IN" data-status="Online" data-s="ok" data-addr="10.10.99.2" data-port="Trunk to the router" data-note="Eight 2.5 GbE ports and two 10G SFP+ ports, VLAN-aware." data-links="l-router-switch l-switch-pc l-switch-nuc l-switch-mini l-switch-flex"><rect x="560" y="166" width="170" height="132" rx="16"/><text x="645" y="218" text-anchor="middle">CRS310-SWITCH</text><text class="s" x="645" y="244" text-anchor="middle">10.10.99.2</text></g>
+            <g class="node live" tabindex="0" role="button" aria-label="Main PC" data-title="Main PC" data-sub="Windows 11 &#183; Ryzen 7 7800X3D" data-status="Connected" data-s="ok" data-addr="Automatic (DHCP)" data-port="Switch ether2 &#183; VLAN 20" data-note="Everyday PC. It no longer manages the router or switch; ADMIN-NUC does." data-links="l-switch-pc"><rect x="790" y="14" width="200" height="64" rx="16"/><text x="890" y="42" text-anchor="middle">Main PC</text><text class="s" x="890" y="63" text-anchor="middle">ether2 &#183; VLAN 20</text></g>
+            <g class="node live" tabindex="0" role="button" aria-label="Admin NUC" data-title="ADMIN-NUC" data-sub="Intel NUC &#183; Windows 11 Pro" data-status="Connected" data-s="ok" data-addr="10.10.40.50 (fixed)" data-port="Switch ether4 &#183; VLAN 40" data-note="Admin computer. Runs Docker and a read-only status page." data-links="l-switch-nuc"><rect x="790" y="98" width="200" height="64" rx="16"/><text x="890" y="126" text-anchor="middle">ADMIN-NUC</text><text class="s" x="890" y="147" text-anchor="middle">ether4 &#183; 10.10.40.50</text></g>
+            <g class="node live" tabindex="0" role="button" aria-label="Mac mini" data-title="Mac mini" data-sub="Intel Mac mini &#183; macOS" data-status="Connected" data-s="ok" data-addr="10.10.10.199 (reserved)" data-port="Switch ether3 &#183; VLAN 10" data-note="Jellyfin media server and Docker. Media is on an external drive." data-links="l-switch-mini"><rect x="790" y="182" width="200" height="64" rx="16"/><text x="890" y="210" text-anchor="middle">Mac mini</text><text class="s" x="890" y="231" text-anchor="middle">ether3 &#183; 10.10.10.199</text></g>
+            <g class="node live" tabindex="0" role="button" aria-label="UniFi Flex" data-title="UniFi Flex" data-sub="USW-Flex-2.5G-8-PoE" data-status="Online" data-s="ok" data-addr="10.10.99.3 (reserved)" data-port="Switch ether8 &#183; trunk" data-note="PoE switch for the access point and the Cloud Key." data-links="l-switch-flex l-flex-ck l-flex-u7"><rect x="790" y="266" width="200" height="64" rx="16"/><text x="890" y="294" text-anchor="middle">UniFi Flex</text><text class="s" x="890" y="315" text-anchor="middle">ether8 &#183; 10.10.99.3</text></g>
+            <g class="node live" tabindex="0" role="button" aria-label="UniFi Cloud Key" data-title="UniFi Cloud Key" data-sub="Gen2 Plus" data-status="Online" data-s="ok" data-addr="10.10.99.5 (reserved)" data-port="Flex port 8" data-note="UniFi controller, set up offline." data-links="l-flex-ck"><rect x="790" y="358" width="200" height="64" rx="16"/><text x="890" y="386" text-anchor="middle">UniFi Cloud Key</text><text class="s" x="890" y="407" text-anchor="middle">Flex port 8 &#183; 10.10.99.5</text></g>
+            <g class="node plan" tabindex="0" role="button" aria-label="UniFi U7 Pro" data-title="UniFi U7 Pro" data-sub="Wi-Fi 7 access point" data-status="Planned" data-s="idle" data-addr="10.10.99.4 (planned)" data-port="A Flex PoE port" data-note="Will carry the Personal, IoT and Guest Wi-Fi networks." data-links="l-flex-u7"><rect x="540" y="358" width="200" height="64" rx="16"/><text x="640" y="386" text-anchor="middle">UniFi U7 Pro</text><text class="s" x="640" y="407" text-anchor="middle">planned &#183; 10.10.99.4</text></g>
+            <text class="lbl" x="521" y="222" text-anchor="middle">10G</text>
+          </svg>
+        </div>
+        <div class="legend"><span><i></i>Connected today</span><span><i class="p"></i>Planned</span></div>
+      </div>
+      <aside class="card mapinfo" id="mapInfo" aria-live="polite">
+        <h3>Select a device</h3>
+        <p class="sub">Click or tab to any box on the map.</p>
+        <p class="muted" style="font-size:15px">You'll see its address, its port and its role here, and its cables light up on the map.</p>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="devices">
+  <div class="wrap">
+    <h2>Every device, at a glance.</h2>
+    <p class="lead">Addresses copy with one click.</p>
+    <div class="body">
+      <div class="h3row">
+        <div class="seg" role="tablist" aria-label="Filter devices" id="devFilter">
+          <span class="ind"></span>
+          <button type="button" role="tab" aria-selected="true" data-f="all">All</button>
+          <button type="button" role="tab" aria-selected="false" data-f="ok">Connected</button>
+          <button type="button" role="tab" aria-selected="false" data-f="planned">Planned</button>
+        </div>
+      </div>
+      <div class="devs" id="devGrid">
+        <article class="card dev" data-state="ok" data-title="RB5009-ROUTER" data-search="router rb5009 mikrotik gateway firewall dhcp dns 10.10.99.1">
+          <div class="top"><span class="bub"><svg class="ico"><use href="#i-router"/></svg></span><div><h3>RB5009-ROUTER</h3><div class="model">MikroTik RB5009UG+S+IN &middot; RouterOS 7</div></div></div>
+          <p class="role">Gateway, DHCP, DNS, firewall, internet sharing and time server for every network.</p>
+          <div class="foot"><button class="chip" type="button" data-copy="10.10.99.1"><span>10.10.99.1</span><svg class="ico"><use href="#i-copy"/></svg></button><span class="pill" data-s="ok">Online</span></div>
+        </article>
+        <article class="card dev" data-state="ok" data-title="CRS310-SWITCH" data-search="switch crs310 mikrotik 10.10.99.2 sfp">
+          <div class="top"><span class="bub"><svg class="ico"><use href="#i-switch"/></svg></span><div><h3>CRS310-SWITCH</h3><div class="model">MikroTik CRS310-8G+2S+IN &middot; RouterOS 7</div></div></div>
+          <p class="role">Core switch: eight 2.5 GbE ports and two 10G SFP+ ports, with one network per port.</p>
+          <div class="foot"><button class="chip" type="button" data-copy="10.10.99.2"><span>10.10.99.2</span><svg class="ico"><use href="#i-copy"/></svg></button><span class="pill" data-s="ok">Online</span></div>
+        </article>
+        <article class="card dev" data-state="ok" data-title="Main PC" data-search="main pc windows ryzen gaming ether2 vlan 20 personal">
+          <div class="top"><span class="bub"><svg class="ico"><use href="#i-monitor"/></svg></span><div><h3>Main PC</h3><div class="model">Windows 11 &middot; Ryzen 7 7800X3D &middot; 2.5 GbE</div></div></div>
+          <p class="role">Gaming and coding PC, on network 20 (Personal) with an automatic address. The router and switch are now managed from ADMIN-NUC.</p>
+          <div class="foot"><span class="muted">Automatic address, network 20</span><span class="pill" data-s="ok">Connected</span></div>
+        </article>
+        <article class="card dev" data-state="ok" data-title="ADMIN-NUC" data-search="admin nuc windows docker 10.10.40.50 ether4 vlan 40">
+          <div class="top"><span class="bub"><svg class="ico"><use href="#i-server"/></svg></span><div><h3>ADMIN-NUC</h3><div class="model">Intel NUC &middot; Windows 11 Pro &middot; 16 GB &middot; 477 GB SSD</div></div></div>
+          <p class="role">The administration computer on network 40. Runs Docker Desktop, Claude Desktop and a read-only rack monitor page.</p>
+          <div class="foot"><button class="chip" type="button" data-copy="10.10.40.50"><span>10.10.40.50</span><svg class="ico"><use href="#i-copy"/></svg></button><span class="pill" data-s="ok">Connected</span></div>
+        </article>
+        <article class="card dev" data-state="ok" data-title="UniFi Flex" data-search="unifi flex poe switch usw 10.10.99.3 ether8">
+          <div class="top"><span class="bub"><svg class="ico"><use href="#i-switch"/></svg></span><div><h3>UniFi Flex</h3><div class="model">USW-Flex-2.5G-8-PoE &middot; 210 W adapter</div></div></div>
+          <p class="role">PoE switch for the access point and the Cloud Key. Managed by the Cloud Key.</p>
+          <div class="foot"><button class="chip" type="button" data-copy="10.10.99.3"><span>10.10.99.3</span><svg class="ico"><use href="#i-copy"/></svg></button><span class="pill" data-s="ok">Online</span></div>
+        </article>
+        <article class="card dev" data-state="ok" data-title="UniFi Cloud Key" data-search="unifi cloud key controller 10.10.99.5">
+          <div class="top"><span class="bub"><svg class="ico"><use href="#i-cloud"/></svg></span><div><h3>UniFi Cloud Key</h3><div class="model">Cloud Key Gen2 Plus</div></div></div>
+          <p class="role">The UniFi controller, set up offline with no Ubiquiti account.</p>
+          <div class="foot"><button class="chip" type="button" data-copy="10.10.99.5"><span>10.10.99.5</span><svg class="ico"><use href="#i-copy"/></svg></button><span class="pill" data-s="ok">Online</span></div>
+        </article>
+        <article class="card dev" data-state="planned" data-title="UniFi U7 Pro" data-search="unifi u7 pro wifi access point 10.10.99.4">
+          <div class="top"><span class="bub"><svg class="ico"><use href="#i-wifi"/></svg></span><div><h3>UniFi U7 Pro</h3><div class="model">Wi-Fi 7 access point</div></div></div>
+          <p class="role">Wireless access for the Personal, IoT and Guest networks.</p>
+          <div class="foot"><button class="chip" type="button" data-copy="10.10.99.4"><span>10.10.99.4</span><svg class="ico"><use href="#i-copy"/></svg></button><span class="pill" data-s="idle">Planned</span></div>
+        </article>
+        <article class="card dev" data-state="planned" data-title="AT&amp;T BGW320" data-search="att bgw320 gateway fiber internet isp wan ether1">
+          <div class="top"><span class="bub"><svg class="ico"><use href="#i-globe"/></svg></span><div><h3>AT&amp;T BGW320</h3><div class="model">Fiber gateway</div></div></div>
+          <p class="role">Hands the internet to the router's <code>ether1</code>.</p>
+          <div class="foot"><span class="muted" style="font-size:14.5px">Not connected yet</span><span class="pill" data-s="warn">Next step</span></div>
+        </article>
+        <article class="card dev" data-state="ok" data-title="Mac mini" data-search="mac mini jellyfin media server docker 10.10.10.199 vlan 10 ether3">
+          <div class="top"><span class="bub"><svg class="ico"><use href="#i-server"/></svg></span><div><h3>Mac mini</h3><div class="model">Intel Mac mini &middot; macOS</div></div></div>
+          <p class="role">Jellyfin media server on the Servers network. Also runs Docker. Media lives on a 4 TB external drive (exFAT).</p>
+          <div class="foot"><button class="chip" type="button" data-copy="10.10.10.199"><span>10.10.10.199</span><svg class="ico"><use href="#i-copy"/></svg></button><span class="pill" data-s="ok">Connected</span></div>
+        </article>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="networks">
+  <div class="wrap">
+    <h2>Six networks, each with a job.</h2>
+    <p class="lead">The router is <code>.1</code> on every one of them and hands that address out as the gateway and DNS server.</p>
+    <div class="body vlans">
+      <article class="card vcard c10" data-title="VLAN 10 Servers" data-search="vlan 10 servers 10.10.10.0 jellyfin mac mini">
+        <div class="id">10</div><h3>Servers</h3><p class="who">Home servers</p>
+        <dl class="kv"><dt>Subnet</dt><dd><button class="chip" type="button" data-copy="10.10.10.0/24"><span>10.10.10.0/24</span><svg class="ico"><use href="#i-copy"/></svg></button></dd><dt>Addresses</dt><dd>DHCP <code>.100&ndash;.199</code>, fixed below <code>.100</code></dd><dt>Devices</dt><dd>Mac mini (<code>.199</code>, reserved)</dd><dt>Internet</dt><dd><span class="pill" data-s="ok">Yes</span></dd></dl>
+      </article>
+      <article class="card vcard c20" data-title="VLAN 20 Personal" data-search="vlan 20 personal 10.10.20.0 phones laptops">
+        <div class="id">20</div><h3>Personal</h3><p class="who">Trusted everyday devices</p>
+        <dl class="kv"><dt>Subnet</dt><dd><button class="chip" type="button" data-copy="10.10.20.0/24"><span>10.10.20.0/24</span><svg class="ico"><use href="#i-copy"/></svg></button></dd><dt>Addresses</dt><dd>DHCP <code>.100&ndash;.249</code></dd><dt>Devices</dt><dd>PC, laptops, phones, iPad</dd><dt>Internet</dt><dd><span class="pill" data-s="ok">Yes</span></dd></dl>
+      </article>
+      <article class="card vcard c30" data-title="VLAN 30 IoT" data-search="vlan 30 iot 10.10.30.0 tv govee elgato">
+        <div class="id">30</div><h3>IoT</h3><p class="who">Smart home and TVs</p>
+        <dl class="kv"><dt>Subnet</dt><dd><button class="chip" type="button" data-copy="10.10.30.0/24"><span>10.10.30.0/24</span><svg class="ico"><use href="#i-copy"/></svg></button></dd><dt>Addresses</dt><dd>DHCP <code>.100&ndash;.249</code></dd><dt>Devices</dt><dd>TVs, Govee lights, Elgato light</dd><dt>Internet</dt><dd><span class="pill" data-s="ok">Yes</span></dd></dl>
+      </article>
+      <article class="card vcard c40" data-title="VLAN 40 Admin" data-search="vlan 40 admin 10.10.40.0 nuc">
+        <div class="id">40</div><h3>Admin</h3><p class="who">Administration</p>
+        <dl class="kv"><dt>Subnet</dt><dd><button class="chip" type="button" data-copy="10.10.40.0/24"><span>10.10.40.0/24</span><svg class="ico"><use href="#i-copy"/></svg></button></dd><dt>Addresses</dt><dd>Fixed only</dd><dt>Devices</dt><dd>ADMIN-NUC (<code>.50</code>, planned)</dd><dt>Internet</dt><dd><span class="pill" data-s="ok">Yes</span></dd></dl>
+      </article>
+      <article class="card vcard c50" data-title="VLAN 50 Guest" data-search="vlan 50 guest 10.10.50.0 visitors">
+        <div class="id">50</div><h3>Guest</h3><p class="who">Visitors</p>
+        <dl class="kv"><dt>Subnet</dt><dd><button class="chip" type="button" data-copy="10.10.50.0/24"><span>10.10.50.0/24</span><svg class="ico"><use href="#i-copy"/></svg></button></dd><dt>Addresses</dt><dd>DHCP <code>.100&ndash;.249</code></dd><dt>Devices</dt><dd>Guest devices</dd><dt>Internet</dt><dd><span class="pill" data-s="ok">Yes</span></dd></dl>
+      </article>
+      <article class="card vcard c99" data-title="VLAN 99 Management" data-search="vlan 99 management 10.10.99.0 router switch unifi">
+        <div class="id">99</div><h3>Management</h3><p class="who">Network equipment</p>
+        <dl class="kv"><dt>Subnet</dt><dd><button class="chip" type="button" data-copy="10.10.99.0/24"><span>10.10.99.0/24</span><svg class="ico"><use href="#i-copy"/></svg></button></dd><dt>Addresses</dt><dd>Reserved addresses only</dd><dt>Devices</dt><dd>Router, switch, UniFi gear, main PC, ADMIN-NUC</dd><dt>Internet</dt><dd><span class="pill" data-s="warn">HTTPS only</span></dd></dl>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="ports">
+  <div class="wrap">
+    <h2>Every port, explained.</h2>
+    <p class="lead">Select a port to see what it carries, what is plugged in and what access it gives. Green lights mean a cable is connected.</p>
+    <div class="body">
+      <div class="h3row">
+        <div class="seg" role="tablist" aria-label="Choose a device" id="portTabs">
+          <span class="ind"></span>
+          <button type="button" role="tab" aria-selected="true" data-pane="sw">CRS310 switch</button>
+          <button type="button" role="tab" aria-selected="false" data-pane="rt">RB5009 router</button>
+        </div>
+      </div>
+
+      <div class="pane" id="pane-sw">
+        <div class="plate" id="swPlate">
+          <div class="pgrid">
+            <button type="button" class="port c20" aria-pressed="true" data-link="up" data-id="ether2" data-title="ether2" data-type="RJ45 &middot; 2.5 GbE" data-net="VLAN 20 &middot; Personal" data-c="c20" data-status="Connected" data-device="Main PC, automatic address." data-access="Internet once the AT&amp;T cable is in, and the Mac mini (Jellyfin) only. It cannot manage the router or the switch." data-label="MAIN PC - Access VLAN 20" data-search="switch port ether2 main pc vlan 20 personal"><span class="n">2</span><span class="v">VLAN 20</span></button>
+            <button type="button" class="port c40" aria-pressed="false" data-link="up" data-id="ether4" data-title="ether4" data-type="RJ45 &middot; 2.5 GbE" data-net="VLAN 40 &middot; Admin" data-c="c40" data-status="Connected" data-device="ADMIN-NUC, fixed 10.10.40.50. Runs a read-only status page." data-access="Manage the router and switch (admin tools only), admin tools for the servers, and internet." data-label="Admin NUC - access VLAN 40" data-search="switch port ether4 admin nuc vlan 40"><span class="n">4</span><span class="v">VLAN 40</span></button>
+            <button type="button" class="port c20" aria-pressed="false" data-link="down" data-id="ether6" data-title="ether6" data-type="RJ45 &middot; 2.5 GbE" data-net="VLAN 20 &middot; Personal" data-c="c20" data-status="No cable" data-device="Spare Personal access port." data-access="Internet, DHCP and DNS, and the Mac mini (Jellyfin). No management access." data-label="SPARE - VLAN 20 Personal" data-search="switch port ether6 spare vlan 20 personal"><span class="n">6</span><span class="v">VLAN 20</span></button>
+            <button type="button" class="port c1" aria-pressed="false" data-link="up" data-id="ether8" data-title="ether8" data-type="RJ45 &middot; 2.5 GbE" data-net="Trunk &middot; VLAN 99 untagged; 20, 30, 50 tagged" data-c="c1" data-status="Connected" data-device="UniFi Flex 10 GbE uplink port (10.10.99.3)." data-access="Carries the management network (untagged) and the Wi-Fi networks (tagged) to the UniFi switch. The Flex, the Cloud Key and the U7 Pro live on VLAN 99." data-label="TRUNK - UniFi Flex 10G uplink, VLAN 99 untagged, 20/30/50 tagged" data-search="switch port ether8 trunk unifi flex uplink"><span class="n">8</span><span class="v">Trunk</span></button>
+            <button type="button" class="port crec" aria-pressed="false" data-link="down" data-id="ether1" data-title="ether1" data-type="RJ45 &middot; 2.5 GbE" data-net="Reserved (standalone, not in the bridge)" data-c="crec" data-status="No cable" data-device="Nothing connected. Plug in a laptop to reach the switch in an emergency." data-access="Reserved port. It carries no network traffic." data-label="RESERVED - standalone, not in use" data-search="switch port ether1 reserved"><span class="n">1</span><span class="v">Reserved</span></button>
+            <button type="button" class="port c10" aria-pressed="false" data-link="up" data-id="ether3" data-title="ether3" data-type="RJ45 &middot; 2.5 GbE" data-net="VLAN 10 &middot; Servers" data-c="c10" data-status="Connected" data-device="Mac mini, Jellyfin server. Fixed address 10.10.10.199 by DHCP reservation." data-access="Internet once the AT&amp;T cable is in, plus DHCP and DNS. Personal devices and TVs reach the media server only." data-label="MAC MINI - Access VLAN 10" data-search="switch port ether3 mac mini jellyfin vlan 10 servers"><span class="n">3</span><span class="v">VLAN 10</span></button>
+            <button type="button" class="port c99" aria-pressed="false" data-link="down" data-id="ether5" data-title="ether5" data-type="RJ45 &middot; 2.5 GbE" data-net="VLAN 99 &middot; Management" data-c="c99" data-status="No cable" data-device="Spare management port. The main PC used it (10.10.99.50) until it moved to ether2." data-access="Manage the router and switch (admin tools only), time from the router, and HTTPS-only internet. This network reaches both devices directly." data-label="Management access VLAN 99 (spare)" data-search="switch port ether5 main pc management vlan 99"><span class="n">5</span><span class="v">VLAN 99</span></button>
+            <button type="button" class="port c30" aria-pressed="false" data-link="down" data-id="ether7" data-title="ether7" data-type="RJ45 &middot; 2.5 GbE" data-net="VLAN 30 &middot; IoT" data-c="c30" data-status="No cable" data-device="Spare IoT access port." data-access="Internet, DHCP and DNS. The TVs in approved TVs can reach Jellyfin. Everything else is blocked." data-label="SPARE - VLAN 30 IoT" data-search="switch port ether7 spare vlan 30 iot"><span class="n">7</span><span class="v">VLAN 30</span></button>
+          </div>
+          <div class="pdiv"></div>
+          <div class="prow">
+            <button type="button" class="port c1" aria-pressed="false" data-link="up" data-id="sfp1" data-title="sfp-sfpplus1" data-type="SFP+ &middot; 10G" data-net="Trunk &middot; VLANs 10, 20, 30, 40, 50, 99 (tagged)" data-c="c1" data-status="Connected &middot; 10G" data-device="Router sfp-sfpplus1." data-access="Carries every network to the router, which routes and filters between them." data-label="TRUNK - RB5009 sfp-sfpplus1, VLANs 10/20/30/40/50/99" data-search="switch port sfp1 sfp-sfpplus1 trunk router 10g"><span class="n">SFP+1</span><span class="v">Trunk</span></button>
+            <button type="button" class="port c1" aria-pressed="false" data-link="down" data-id="sfp2" data-title="sfp-sfpplus2" data-type="SFP+ &middot; 10G" data-net="Trunk &middot; VLANs 20, 30, 50, 99 (tagged)" data-c="c1" data-status="No cable &middot; spare" data-device="Spare. Reserved for an optional 10G link to the UniFi Flex." data-access="Carries the Wi-Fi and management networks, all tagged. Servers (10) and Admin (40) are not carried here." data-label="SPARE - optional 10G link to UniFi Flex" data-search="switch port sfp2 sfp-sfpplus2 spare 10g flex"><span class="n">SFP+2</span><span class="v">Spare</span></button>
+          </div>
+        </div>
+        <div class="pdetail" id="swDetail" aria-live="polite"></div>
+      </div>
+
+      <div class="pane" id="pane-rt" hidden>
+        <div class="plate" id="rtPlate">
+          <div class="prow">
+            <button type="button" class="port c1" aria-pressed="false" data-link="down" data-id="ether1" data-title="ether1" data-type="RJ45 &middot; 1 GbE" data-net="WAN (internet side)" data-c="c1" data-status="No cable" data-device="Planned: the AT&amp;T BGW320's LAN port." data-access="The internet side. Every inbound connection is dropped by the firewall, and outbound traffic is shared by NAT. It is PoE-in capable, so never plug PoE equipment into it." data-label="WAN - AT&amp;T BGW320 LAN port" data-search="router port ether1 wan att bgw320 internet"><span class="n">1</span><span class="v">WAN</span></button>
+            <button type="button" class="port c1" aria-pressed="false" data-link="down" data-id="ether2" data-title="ether2" data-type="RJ45 &middot; Ethernet" data-net="VLAN 1 (default)" data-c="c1" data-status="No cable" data-device="Nothing connected." data-access="No services on this network: no DHCP and no gateway. A device plugged in here gets no address." data-label="SPARE - bridge, VLAN 1, unused" data-search="router port ether2 spare"><span class="n">2</span><span class="v">Spare</span></button>
+            <button type="button" class="port c1" aria-pressed="false" data-link="down" data-id="ether3" data-title="ether3" data-type="RJ45 &middot; Ethernet" data-net="VLAN 1 (default)" data-c="c1" data-status="No cable" data-device="Nothing connected." data-access="No services on this network: no DHCP and no gateway. A device plugged in here gets no address." data-label="SPARE - bridge, VLAN 1, unused" data-search="router port ether3 spare"><span class="n">3</span><span class="v">Spare</span></button>
+            <button type="button" class="port c1" aria-pressed="false" data-link="down" data-id="ether4" data-title="ether4" data-type="RJ45 &middot; Ethernet" data-net="VLAN 1 (default)" data-c="c1" data-status="No cable" data-device="Nothing connected." data-access="No services on this network: no DHCP and no gateway. A device plugged in here gets no address." data-label="SPARE - bridge, VLAN 1, unused" data-search="router port ether4 spare"><span class="n">4</span><span class="v">Spare</span></button>
+            <button type="button" class="port c1" aria-pressed="false" data-link="down" data-id="ether5" data-title="ether5" data-type="RJ45 &middot; Ethernet" data-net="VLAN 1 (default)" data-c="c1" data-status="No cable" data-device="Nothing connected." data-access="No services on this network: no DHCP and no gateway. A device plugged in here gets no address." data-label="SPARE - bridge, VLAN 1, unused" data-search="router port ether5 spare"><span class="n">5</span><span class="v">Spare</span></button>
+            <button type="button" class="port c1" aria-pressed="false" data-link="down" data-id="ether6" data-title="ether6" data-type="RJ45 &middot; Ethernet" data-net="VLAN 1 (default)" data-c="c1" data-status="No cable" data-device="Nothing connected." data-access="No services on this network: no DHCP and no gateway. A device plugged in here gets no address." data-label="SPARE - bridge, VLAN 1, unused" data-search="router port ether6 spare"><span class="n">6</span><span class="v">Spare</span></button>
+            <button type="button" class="port c1" aria-pressed="false" data-link="down" data-id="ether7" data-title="ether7" data-type="RJ45 &middot; Ethernet" data-net="VLAN 1 (default)" data-c="c1" data-status="No cable" data-device="Nothing connected." data-access="No services on this network: no DHCP and no gateway. A device plugged in here gets no address." data-label="SPARE - bridge, VLAN 1, unused" data-search="router port ether7 spare"><span class="n">7</span><span class="v">Spare</span></button>
+            <button type="button" class="port crec" aria-pressed="false" data-link="down" data-id="ether8" data-title="ether8" data-type="RJ45 &middot; Ethernet" data-net="Reserved (standalone, not in the bridge)" data-c="crec" data-status="No cable" data-device="Nothing connected. Plug in a laptop to reach the router in an emergency." data-access="Reserved port. It carries no network traffic." data-label="RESERVED - standalone, not in use" data-search="router port ether8 reserved"><span class="n">8</span><span class="v">Reserved</span></button>
+          </div>
+          <div class="pdiv"></div>
+          <div class="prow">
+            <button type="button" class="port c1" aria-pressed="false" data-link="up" data-id="sfp1" data-title="sfp-sfpplus1" data-type="SFP+ &middot; 10G" data-net="Trunk &middot; VLANs 10, 20, 30, 40, 50, 99 (tagged)" data-c="c1" data-status="Connected &middot; 10G" data-device="Switch sfp-sfpplus1." data-access="Carries every network to the switch. The router is the gateway for all of them." data-label="TRUNK - CRS310 sfp-sfpplus1, VLANs 10/20/30/40/50/99" data-search="router port sfp1 sfp-sfpplus1 trunk switch 10g"><span class="n">SFP+</span><span class="v">Trunk</span></button>
+          </div>
+        </div>
+        <div class="pdetail" id="rtDetail" aria-live="polite"></div>
+      </div>
+
+      <div class="h3row"><h3>What connects where</h3></div>
+      <div class="tw"><table class="tbl">
+        <thead><tr><th>Device</th><th>Plugs into</th><th>Port</th><th>Network</th><th>Address</th><th>Speed</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>Main PC</td><td>CRS310 switch</td><td><code>ether2</code></td><td><span class="vl c20">20</span></td><td>automatic (DHCP)</td><td>2.5 Gbps</td><td><span class="pill" data-s="ok">Connected</span></td></tr>
+          <tr><td>ADMIN-NUC</td><td>CRS310 switch</td><td><code>ether4</code></td><td><span class="vl c40">40</span></td><td><code>10.10.40.50</code></td><td>1 Gbps</td><td><span class="pill" data-s="ok">Connected</span></td></tr>
+          <tr><td>RB5009 router</td><td>CRS310 switch</td><td><code>sfp-sfpplus1</code> on both ends</td><td>Trunk, all six</td><td>&mdash;</td><td>10G</td><td><span class="pill" data-s="ok">Connected</span></td></tr>
+          <tr><td>UniFi Flex</td><td>CRS310 switch</td><td><code>ether8</code> to the Flex's 10 GbE uplink</td><td>Trunk: <span class="vl c99">99</span> untagged, 20/30/50 tagged</td><td><code>10.10.99.3</code></td><td>up to 2.5 Gbps</td><td><span class="pill" data-s="ok">Connected</span></td></tr>
+          <tr><td>UniFi Cloud Key</td><td>UniFi Flex</td><td>Flex port 8 (PoE)</td><td><span class="vl c99">99</span></td><td><code>10.10.99.5</code></td><td>up to 1 Gbps</td><td><span class="pill" data-s="ok">Connected</span></td></tr>
+          <tr><td>AT&amp;T BGW320</td><td>RB5009 router</td><td><code>ether1</code></td><td>WAN</td><td>from AT&amp;T</td><td>1 GbE</td><td><span class="pill" data-s="idle">Planned</span></td></tr>
+          <tr><td>Mac mini</td><td>CRS310 switch</td><td><code>ether3</code></td><td><span class="vl c10">10</span></td><td><code>10.10.10.199</code></td><td>1 Gbps</td><td><span class="pill" data-s="ok">Connected</span></td></tr>
+          <tr><td>UniFi U7 Pro</td><td>UniFi Flex</td><td>A Flex PoE port</td><td><span class="vl c99">99</span> plus Wi-Fi networks</td><td><code>10.10.99.4</code></td><td>2.5 GbE</td><td><span class="pill" data-s="idle">Planned</span></td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="access">
+  <div class="wrap">
+    <h2>Who can reach what.</h2>
+    <p class="lead">Everything not listed is blocked. Hover a row or a column to follow it across.</p>
+    <div class="body">
+      <div class="tw"><table class="tbl mx" id="matrix">
+        <thead><tr><th>From &darr; To &rarr;</th><th>Internet</th><th>10 Servers</th><th>20 Personal</th><th>30 IoT</th><th>40 Admin</th><th>50 Guest</th><th>99 Mgmt</th></tr></thead>
+        <tbody>
+          <tr><td><span class="vl c10">10 Servers</span></td><td class="y">Yes</td><td class="s">&mdash;</td><td class="n">Blocked</td><td class="n">Blocked</td><td class="n">Blocked</td><td class="n">Blocked</td><td class="n">Blocked</td></tr>
+          <tr><td><span class="vl c20">20 Personal</span></td><td class="y">Yes</td><td class="l">Media only</td><td class="s">&mdash;</td><td class="n">Blocked</td><td class="n">Blocked</td><td class="n">Blocked</td><td class="n">Blocked</td></tr>
+          <tr><td><span class="vl c30">30 IoT</span></td><td class="y">Yes</td><td class="l">Media only<small>TVs only</small></td><td class="n">Blocked</td><td class="s">&mdash;</td><td class="n">Blocked</td><td class="n">Blocked</td><td class="n">Blocked</td></tr>
+          <tr><td><span class="vl c40">40 Admin</span></td><td class="y">Yes</td><td class="l">Admin tools</td><td class="l">Admin tools</td><td class="n">Blocked</td><td class="s">&mdash;</td><td class="n">Blocked</td><td class="l">Admin tools</td></tr>
+          <tr><td><span class="vl c50">50 Guest</span></td><td class="y">Yes</td><td class="n">Blocked</td><td class="n">Blocked</td><td class="n">Blocked</td><td class="n">Blocked</td><td class="s">&mdash;</td><td class="n">Blocked</td></tr>
+          <tr><td><span class="vl c99">99 Mgmt</span></td><td class="l">HTTPS only</td><td class="n">Blocked</td><td class="n">Blocked</td><td class="n">Blocked</td><td class="n">Blocked</td><td class="n">Blocked</td><td class="s">&mdash;</td></tr>
+        </tbody>
+      </table></div>
+
+      <div class="h3row"><h3>What each network can ask the router for</h3></div>
+      <div class="tw"><table class="tbl">
+        <thead><tr><th>Service on the router</th><th>Who may use it</th></tr></thead>
+        <tbody>
+          <tr><td>DHCP, to get an address</td><td>Networks 10, 20, 30 and 50, and the reserved devices on 99</td></tr>
+          <tr><td>DNS, to look up names</td><td>All six networks</td></tr>
+          <tr><td>Router management</td><td>Networks 99 and 40 only</td></tr>
+          <tr><td>NTP, for the time</td><td>Network 99 only</td></tr>
+        </tbody>
+      </table></div>
+      <p class="muted" style="margin-top:14px;font-size:15px">Internet access for every network starts when the AT&amp;T cable is connected.</p>
+
+      <div class="h3row" id="firewall"><h3>Firewall policy</h3></div>
+      <div class="card">
+        <ul style="margin:0;padding-left:20px;line-height:1.7">
+          <li>Everything between networks is blocked unless a rule allows it (default deny).</li>
+          <li>Networks 10, 20, 30, 40 and 50 can reach the internet. Management (99) is limited to secure web traffic.</li>
+          <li>Nothing new is accepted from the internet side.</li>
+          <li>Personal devices and the TVs can reach only the media server.</li>
+          <li>The admin network can manage the servers and the network equipment, and nothing else can.</li>
+          <li>Rules are narrow: one source, one destination, one service.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="operations">
+  <div class="wrap">
+    <h2>How it runs.</h2>
+    <p class="lead">The services the router provides, and how changes are made safely.</p>
+    <div class="body">
+      <div class="two" style="align-items:start">
+        <div class="card">
+          <h3 style="margin-bottom:16px">Addresses (DHCP)</h3>
+          <div class="tw"><table class="tbl" style="min-width:0">
+            <thead><tr><th>Network</th><th>Handed out</th><th>Lease</th></tr></thead>
+            <tbody>
+              <tr><td><span class="vl c10">10</span></td><td><code>.100&ndash;.199</code></td><td style="white-space:nowrap">30 min</td></tr>
+              <tr><td><span class="vl c20">20</span></td><td><code>.100&ndash;.249</code></td><td style="white-space:nowrap">30 min</td></tr>
+              <tr><td><span class="vl c30">30</span></td><td><code>.100&ndash;.249</code></td><td style="white-space:nowrap">30 min</td></tr>
+              <tr><td><span class="vl c50">50</span></td><td><code>.100&ndash;.249</code></td><td style="white-space:nowrap">30 min</td></tr>
+              <tr><td><span class="vl c99">99</span></td><td>Reserved only: Flex <code>.3</code>, Cloud Key <code>.5</code>, U7 Pro <code>.4</code> planned</td><td>&mdash;</td></tr>
+            </tbody>
+          </table></div>
+          <p class="muted" style="margin-top:12px;font-size:14.5px">Network 40 uses fixed addresses only.</p>
+        </div>
+        <div class="card">
+          <h3 style="margin-bottom:16px">DNS, time and sharing</h3>
+          <dl class="kv">
+            <dt>DNS</dt><dd>Quad9: <code>9.9.9.9</code>, <code>149.112.112.112</code></dd>
+            <dt>Local name</dt><dd><code>router.lan</code> points to <code>10.10.99.1</code></dd>
+            <dt>Time sources</dt><dd><code>time.cloudflare.com</code>, <code>pool.ntp.org</code></dd>
+            <dt>Time zone</dt><dd>Eastern, with daylight saving</dd>
+            <dt>Time for others</dt><dd>The router shares it with network 99</dd>
+            <dt>Sharing</dt><dd>NAT on <code>ether1</code></dd>
+            
+          </dl>
+        </div>
+      </div>
+
+      <div class="two" style="margin-top:32px;align-items:start">
+        <div class="card">
+          <h3 style="margin-bottom:16px">Making a change safely</h3>
+          <ol class="steps">
+            <li><span>Open a command-line session on the device.</span></li>
+            <li><span>Press <b>Ctrl+X</b>. The prompt shows <code>&lt;SAFE&gt;</code>.</span></li>
+            <li><span>Run the change and check it.</span></li>
+            <li><span>Press <b>Ctrl+X</b> again to keep it, or <b>Ctrl+D</b> to undo everything.</span></li>
+          </ol>
+          <p class="muted" style="margin-top:16px;font-size:14.5px">If the session drops, the device undoes the change by itself.</p>
+        </div>
+      </div>
+
+          </div>
+  </div>
+</section>
+
+<section class="sec" id="roadmap">
+  <div class="wrap">
+    <h2>What comes next.</h2>
+    <p class="lead">Everything that can be built without the internet is built. These steps follow, in order.</p>
+    <div class="body two" style="align-items:start">
+      <div class="tl card" style="padding:32px">
+        <div class="i" data-s="next"><span class="mk"></span><div><h4>Connect the AT&amp;T cable</h4><p>Plug a BGW320 LAN port into router <code>ether1</code> and leave the BGW in its normal mode. Then check the address, DNS and the clock.</p></div></div>
+        <div class="i"><span class="mk"></span><div><h4>Update firmware</h4><p>Once the internet cable is in, update the router, switches and access point.</p></div></div>
+        <div class="i"><span class="mk"></span><div><h4>Install the U7 Pro</h4><p>Adopt it in the Cloud Key, then create the Personal, IoT and Guest Wi-Fi networks.</p></div></div>
+      </div>
+      <div class="grid">
+        
+        <div class="note"><svg class="ico"><use href="#i-shield"/></svg><span>Nothing here is reachable from the internet.</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="reference">
+  <div class="wrap">
+    <h2>Quick reference.</h2>
+    <p class="lead">The values you reach for most. Select one to copy it.</p>
+    <div class="body refgrid">
+      
+      <div class="card"><h3 style="margin-bottom:16px">Switch ports</h3>
+        <dl class="kv">
+          <dt>ether1</dt><dd>Reserved</dd><dt>ether2</dt><dd>Main PC</dd><dt>ether3</dt><dd>Mac mini, network 10</dd><dt>ether4</dt><dd>ADMIN-NUC</dd><dt>ether5</dt><dd>Spare, network 99</dd><dt>ether6</dt><dd>Spare, network 20</dd><dt>ether7</dt><dd>Spare, network 30</dd><dt>ether8</dt><dd>UniFi Flex trunk</dd><dt>SFP+1</dt><dd>Router trunk</dd><dt>SFP+2</dt><dd>Spare</dd>
+        </dl>
+      </div>
+      <div class="card"><h3 style="margin-bottom:16px">Router ports</h3>
+        <dl class="kv">
+          <dt>ether1</dt><dd>Internet (WAN)</dd><dt>ether2&ndash;7</dt><dd>Spare</dd><dt>ether8</dt><dd>Reserved</dd><dt>SFP+</dt><dd>Switch trunk</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">Portfolio edition. IP addresses are examples, and details such as accounts, firmware versions and exact firewall rules are left out on purpose. Press <b>Ctrl K</b> to search.</div>
+</footer>
+
+<div class="ov" id="pal" role="dialog" aria-modal="true" aria-label="Search">
+  <div class="pal">
+    <div class="q"><svg class="ico"><use href="#i-search"/></svg><input id="palIn" placeholder="Search devices, networks and ports" autocomplete="off" spellcheck="false" aria-label="Search"></div>
+    <div class="res" id="palRes" role="listbox"></div>
+    <div class="hint">Arrow keys to move, Enter to jump, Esc to close.</div>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+'use strict';
+var $=function(s,r){return (r||document).querySelector(s)};
+var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
+var root=document.documentElement;
+var reduce=!!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);
+function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
+
+/* theme */
+(function(){
+  var t=null;try{t=localStorage.getItem('hl-theme')}catch(e){}
+  if(!t){t=(window.matchMedia&&matchMedia('(prefers-color-scheme: light)').matches)?'light':'dark'}
+  root.setAttribute('data-theme',t);
+  $('#themeBtn').addEventListener('click',function(){
+    var n=root.getAttribute('data-theme')==='dark'?'light':'dark';
+    root.setAttribute('data-theme',n);try{localStorage.setItem('hl-theme',n)}catch(e){}
+  });
+})();
+
+/* toast and copy */
+var toastEl=$('#toast'),tt;
+function toast(m){toastEl.textContent=m;toastEl.classList.add('show');clearTimeout(tt);tt=setTimeout(function(){toastEl.classList.remove('show')},1800)}
+function legacyCopy(v){var a=document.createElement('textarea');a.value=v;a.style.position='fixed';a.style.opacity='0';document.body.appendChild(a);a.select();try{document.execCommand('copy')}catch(e){}document.body.removeChild(a)}
+document.addEventListener('click',function(e){
+  var b=e.target.closest('[data-copy]');if(!b)return;
+  var v=b.getAttribute('data-copy');
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(v).then(function(){toast('Copied '+v)},function(){legacyCopy(v);toast('Copied '+v)})}
+  else{legacyCopy(v);toast('Copied '+v)}
+});
+
+/* segmented controls */
+function moveInd(seg){
+  var ind=$('.ind',seg),b=$('[aria-selected="true"]',seg);if(!ind||!b)return;
+  ind.style.width=b.offsetWidth+'px';ind.style.transform='translateX('+b.offsetLeft+'px)';
+}
+$$('.seg').forEach(function(s){
+  moveInd(s);
+  $$('button',s).forEach(function(b){
+    b.addEventListener('click',function(){
+      $$('button',s).forEach(function(x){x.setAttribute('aria-selected',x===b?'true':'false')});
+      moveInd(s);
+    });
+  });
+});
+window.addEventListener('resize',function(){$$('.seg').forEach(moveInd)});
+requestAnimationFrame(function(){requestAnimationFrame(function(){$$('.seg').forEach(function(x){x.classList.add('ready')})})});
+if(document.fonts&&document.fonts.ready){document.fonts.ready.then(function(){$$('.seg').forEach(moveInd)})}
+
+/* device filter */
+$$('#devFilter button').forEach(function(b){
+  b.addEventListener('click',function(){
+    var f=b.getAttribute('data-f');
+    $$('#devGrid .dev').forEach(function(c){c.hidden=!(f==='all'||c.getAttribute('data-state')===f)});
+  });
+});
+
+/* port tabs and panels */
+function showPane(p){$$('.pane').forEach(function(x){x.hidden=(x.id!=='pane-'+p)})}
+$$('#portTabs button').forEach(function(b){b.addEventListener('click',function(){showPane(b.getAttribute('data-pane'))})});
+function field(label,node,wide){var f=el('div','f'+(wide?' wide':''));f.appendChild(el('small',null,label));f.appendChild(node);return f}
+function renderPort(btn,box){
+  var d=btn.dataset;box.textContent='';
+  var p=el('div');p.appendChild(el('b',null,d.title));p.appendChild(document.createTextNode(' '));p.appendChild(el('span','muted',d.type));
+  box.appendChild(field('Port',p));
+  box.appendChild(field('Network',el('span','vl '+d.c,d.net)));
+  box.appendChild(field('Status',el('span',null,d.status)));
+  box.appendChild(field('Connected device',el('span',null,d.device)));
+  box.appendChild(field('Access this port gives',el('span',null,d.access),true));
+  box.appendChild(field('Label on the device',el('code',null,d.label),true));
+  box.classList.remove('swap');void box.offsetWidth;box.classList.add('swap');
+}
+[['#swPlate','#swDetail'],['#rtPlate','#rtDetail']].forEach(function(pair){
+  var plate=$(pair[0]),box=$(pair[1]),ports=$$('.port',plate);
+  function sel(b){ports.forEach(function(x){x.setAttribute('aria-pressed',x===b?'true':'false')});renderPort(b,box)}
+  ports.forEach(function(b){b.addEventListener('click',function(){sel(b)})});
+  sel($('.port[aria-pressed="true"]',plate)||ports[0]);
+  plate._sel=sel;
+});
+
+/* network map */
+var info=$('#mapInfo'),nodes=$$('.node'),links=$$('.lk'),curLinks=[];
+function setLinks(ids){links.forEach(function(l){l.classList.toggle('on',ids.indexOf(l.id)>-1)})}
+function nodeLinks(n){return (n.getAttribute('data-links')||'').split(' ').filter(Boolean)}
+function renderNode(n){
+  info.textContent='';
+  info.appendChild(el('h3',null,n.getAttribute('data-title')));
+  info.appendChild(el('p','sub',n.getAttribute('data-sub')));
+  var pill=el('span','pill',n.getAttribute('data-status'));pill.setAttribute('data-s',n.getAttribute('data-s')||'idle');
+  var w=el('div');w.style.margin='0 0 18px';w.appendChild(pill);info.appendChild(w);
+  var dl=el('dl','kv');
+  [['Address','data-addr'],['Port','data-port'],['Role','data-note']].forEach(function(r){
+    var v=n.getAttribute(r[1]);if(v){dl.appendChild(el('dt',null,r[0]));dl.appendChild(el('dd',null,v))}
+  });
+  info.appendChild(dl);
+  info.classList.remove('swap');void info.offsetWidth;info.classList.add('swap');
+}
+function selNode(n){nodes.forEach(function(x){x.classList.toggle('sel',x===n)});curLinks=nodeLinks(n);setLinks(curLinks);renderNode(n)}
+nodes.forEach(function(n){
+  n.addEventListener('click',function(){selNode(n)});
+  n.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();selNode(n)}});
+  n.addEventListener('mouseenter',function(){setLinks(nodeLinks(n))});
+  n.addEventListener('focus',function(){setLinks(nodeLinks(n))});
+  n.addEventListener('mouseleave',function(){setLinks(curLinks)});
+  n.addEventListener('blur',function(){setLinks(curLinks)});
+});
+
+/* access matrix: follow a row and column */
+var mx=$('#matrix');
+if(mx){
+  var mrows=$$('tr',mx);
+  var clearHl=function(){$$('.hl',mx).forEach(function(x){x.classList.remove('hl')})};
+  mx.addEventListener('mouseover',function(e){
+    var c=e.target.closest('td,th');if(!c)return;
+    var tr=c.parentNode,ci=Array.prototype.indexOf.call(tr.children,c);
+    clearHl();
+    $$('td,th',tr).forEach(function(x){x.classList.add('hl')});
+    mrows.forEach(function(r){if(r.children[ci])r.children[ci].classList.add('hl')});
+  });
+  mx.addEventListener('mouseleave',clearHl);
+}
+
+/* firewall filter */
+$$('#fwChips .fchip').forEach(function(b){
+  b.addEventListener('click',function(){
+    var a=b.getAttribute('data-a');
+    $$('#fwChips .fchip').forEach(function(x){x.setAttribute('aria-pressed',x===b?'true':'false')});
+    $$('.rule').forEach(function(r){r.hidden=!(a==='all'||r.getAttribute('data-a')===a)});
+  });
+});
+
+/* section tracking in the navigation */
+var navL=$$('#navLinks a'),secs=navL.map(function(a){return $(a.getAttribute('href'))});
+if('IntersectionObserver' in window){
+  var io=new IntersectionObserver(function(es){
+    es.forEach(function(e){
+      if(!e.isIntersecting)return;
+      var i=secs.indexOf(e.target);
+      navL.forEach(function(a,k){
+        if(k===i){a.setAttribute('aria-current','true');var p=a.parentNode;p.scrollLeft=a.offsetLeft-p.clientWidth/2+a.offsetWidth/2}
+        else{a.removeAttribute('aria-current')}
+      });
+    });
+  },{rootMargin:'-40% 0px -55% 0px'});
+  secs.forEach(function(s){if(s)io.observe(s)});
+}
+
+/* counters */
+function countUp(e){
+  var to=parseInt(e.getAttribute('data-count'),10),t0=null;
+  if(reduce){e.textContent=to;return}
+  function step(t){if(!t0)t0=t;var p=Math.min((t-t0)/900,1),v=1-Math.pow(1-p,3);e.textContent=Math.round(to*v);if(p<1)requestAnimationFrame(step)}
+  e.textContent='0';requestAnimationFrame(step);
+}
+if('IntersectionObserver' in window){
+  var co=new IntersectionObserver(function(es){es.forEach(function(x){if(x.isIntersecting){countUp(x.target);co.unobserve(x.target)}})},{threshold:.6});
+  $$('[data-count]').forEach(function(c){co.observe(c)});
+}
+
+/* command palette */
+var pal=$('#pal'),pin=$('#palIn'),pres=$('#palRes'),items=[],shown=[],cur=0,lastFocus=null;
+function flash(e){e.classList.remove('flash');void e.offsetWidth;e.classList.add('flash')}
+function goEl(e){e.scrollIntoView({behavior:reduce?'auto':'smooth',block:'center'});flash(e)}
+function build(){
+  items=[];
+  $$('#navLinks a').forEach(function(a){items.push({t:a.textContent,g:'Section',k:'',go:function(){$(a.getAttribute('href')).scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'})}})});
+  $$('.dev').forEach(function(c){items.push({t:c.getAttribute('data-title'),g:'Device',k:c.getAttribute('data-search')||'',go:function(){var f=$('#devFilter button[data-f="all"]');if(c.hidden&&f)f.click();goEl(c)}})});
+  $$('.vcard').forEach(function(c){items.push({t:c.getAttribute('data-title'),g:'Network',k:c.getAttribute('data-search')||'',go:function(){goEl(c)}})});
+  $$('.port').forEach(function(b){
+    var s=b.getAttribute('data-search')||'',dev=s.indexOf('router')===0?'rt':'sw';
+    items.push({t:(dev==='sw'?'Switch ':'Router ')+b.getAttribute('data-title'),g:'Port',k:s+' '+(b.getAttribute('data-label')||''),go:function(){
+      var tab=$('#portTabs button[data-pane="'+dev+'"]');if(tab)tab.click();
+      var plate=$(dev==='sw'?'#swPlate':'#rtPlate');plate._sel(b);goEl(b);
+    }});
+  });
+}
+function mark(n){
+  cur=n;var rows=$$('.it',pres);
+  rows.forEach(function(r,k){r.setAttribute('aria-selected',k===n?'true':'false')});
+  if(rows[n]&&rows[n].scrollIntoView)rows[n].scrollIntoView({block:'nearest'});
+}
+function closePal(){pal.classList.remove('open');if(lastFocus&&lastFocus.focus)lastFocus.focus()}
+function run(n){var i=shown[n];if(!i)return;closePal();setTimeout(i.go,60)}
+function render(){
+  var tk=pin.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  shown=items.filter(function(i){var h=(i.t+' '+i.g+' '+i.k).toLowerCase();return tk.every(function(x){return h.indexOf(x)>-1})}).slice(0,40);
+  cur=0;pres.textContent='';
+  if(!shown.length){pres.appendChild(el('div','none','Nothing matches "'+pin.value+'".'));return}
+  shown.forEach(function(i,n){
+    var r=el('div','it');r.setAttribute('role','option');r.setAttribute('aria-selected',n===0?'true':'false');
+    r.appendChild(el('span',null,i.t));r.appendChild(el('small',null,i.g));
+    r.addEventListener('mousemove',function(){if(cur!==n)mark(n)});
+    r.addEventListener('click',function(){run(n)});
+    pres.appendChild(r);
+  });
+}
+function openPal(){if(!items.length)build();lastFocus=document.activeElement;pal.classList.add('open');pin.value='';render();pin.focus()}
+$('#palBtn').addEventListener('click',openPal);
+pal.addEventListener('mousedown',function(e){if(e.target===pal)closePal()});
+pin.addEventListener('input',render);
+pin.addEventListener('keydown',function(e){
+  if(e.key==='ArrowDown'){e.preventDefault();mark(Math.min(cur+1,shown.length-1))}
+  else if(e.key==='ArrowUp'){e.preventDefault();mark(Math.max(cur-1,0))}
+  else if(e.key==='Enter'){e.preventDefault();run(cur)}
+});
+document.addEventListener('keydown',function(e){
+  var open=pal.classList.contains('open');
+  if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();open?closePal():openPal()}
+  else if(e.key==='Escape'&&open){closePal()}
+  else if(e.key==='/'&&!open&&!/INPUT|TEXTAREA/.test(document.activeElement.tagName)){e.preventDefault();openPal()}
+});
+})();
+</script>
+</body>
+</html>

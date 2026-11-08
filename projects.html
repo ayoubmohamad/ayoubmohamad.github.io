@@ -145,23 +145,25 @@
                         <!-- ===================== -->
                         <div class="project-card">
                             <div style="flex-grow: 1;">
-                                <h3>Homelab Network Topology — Split Architecture</h3>
+                                <h3>Homelab Network — Segmented VLAN Architecture</h3>
 
                                 <div style="margin-top: 15px; margin-bottom: 15px;">
                                     <h4
                                         style="margin-bottom: 10px; font-size: 16px; font-weight: 500; color: var(--text-color);">
                                     </h4>
                                     <ul>
-                                        <li><strong>Security-First Segmentation:</strong> Implemented a
-                                            "Deny-by-Default"
-                                            firewall posture across four distinct VLANs (Servers, Personal, IoT, and
-                                            Management).</li>
-                                        <li><strong>Unified Wireless:</strong> Deployed a UniFi U7 Pro to handle
-                                            multi-SSID-to-VLAN mapping, ensuring mobile devices inherit the same strict
-                                            traffic policies as wired hosts.</li>
-                                        <li><strong>Visibility:</strong> Integrated the IQON monitoring agent for
-                                            real-time
-                                            telemetry and deep packet inspection across the L3 boundary.</li>
+                                        <li><strong>Security-First Segmentation:</strong> Built a "Deny-by-Default"
+                                            firewall posture across six VLANs (Servers, Personal, IoT, Admin, Guest, and
+                                            Management) on a MikroTik RB5009 router and CRS310 switch. Management is
+                                            reachable from two internal networks only.</li>
+                                        <li><strong>UniFi Wireless:</strong> Set up a UniFi Cloud Key and PoE switch
+                                            offline. A U7 Pro access point is planned to map SSIDs to VLANs, so phones
+                                            and TVs follow the same traffic policy as wired hosts.</li>
+                                        <li><strong>Visibility:</strong> Runs a read-only status dashboard on the admin
+                                            network that reads the router and switch through a read-only account.</li>
+                                        <li><strong>Documentation:</strong> Maintains the network documentation like
+                                            production infrastructure: map, VLAN plan, access matrix and roadmap.
+                                            <a href="homelab/index.html" style="color: var(--accent-yellow); text-decoration: underline;">Read the full documentation</a>.</li>
                                     </ul>
                                 </div>
                             </div>
@@ -169,16 +171,16 @@
                             <div class="project-tech">
                                 <h4>Tech Stack:</h4>
                                 <ul>
-                                    <li><strong>Backend:</strong> Node.js, Express, WebSockets, node-pty</li>
-                                    <li><strong>Frontend:</strong> HTML5, CSS3, Vanilla JavaScript</li>
-                                    <li><strong>Terminal:</strong> xterm.js</li>
-                                    <li><strong>Data Flow:</strong> REST + WebSocket streaming</li>
+                                    <li><strong>Routing &amp; Switching:</strong> MikroTik RouterOS (RB5009, CRS310)</li>
+                                    <li><strong>Wireless:</strong> UniFi Network (Cloud Key Gen2 Plus, USW-Flex, U7 Pro)</li>
+                                    <li><strong>Networking:</strong> 802.1Q VLANs, stateful firewall, DHCP, DNS</li>
+                                    <li><strong>Services:</strong> Docker, Jellyfin</li>
                                 </ul>
                             </div>
 
                             <div class="project-img-container">
                                 <a href="#project-modal-2">
-                                    <img src="images/final_topology.PNG" alt="Homelab Network Topology"
+                                    <img src="images/homelab-map.png" alt="Homelab network map"
                                         class="project-image" style="cursor: zoom-in;">
                                 </a>
                             </div>
@@ -195,7 +197,7 @@
                         <div id="project-modal-2" class="modal-overlay">
                             <a href="#" class="modal-close">&times;</a>
                             <div class="modal-content">
-                                <img src="images/final_topology.PNG" alt="Full Homelab Network Topology">
+                                <img src="images/homelab-map.png" alt="Full homelab network map">
                             </div>
                         </div>
 
